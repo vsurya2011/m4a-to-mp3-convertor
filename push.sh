@@ -1,19 +1,32 @@
 #!/bin/bash
-PROJECT="/c/Users/SURYA/Documents/m4a-to-mp3-converter"
 
-cd "$PROJECT" || { echo "❌ Path error!"; read; exit; }
+echo "🚀 Pushing Project to GitHub..."
 
-echo "📦 Adding everything..."
-git add -A
+cd "C:/Users/SURYA/Documents/m4a-to-mp3-converter" || {
+  echo "❌ Project folder not found! Check path"
+  exit 1
+}
 
-echo "📝 Auto commit..."
-git commit -m "🚀 Auto update" 2>/dev/null || echo "⚠ No changes to commit"
+# Init git if not initialized
+if [ ! -d ".git" ]; then
+  echo "📌 Initializing Git..."
+  git init
+  git branch -M main
+  git remote add origin https://github.com/vsurya2011/m4a-to-mp3-convertor.git
+fi
 
-echo "🌍 Setting remote..."
-git remote set-url origin https://github.com/vsurya2011/M4A-to-MP3-convertor.git
+echo "📦 Adding files..."
+git add .
+
+echo "📝 Committing changes..."
+git commit -m "Latest update" || echo "⚠️ Nothing to commit."
+
+echo "🔗 Setting remote URL..."
+git remote set-url origin https://github.com/vsurya2011/m4a-to-mp3-convertor.git
 
 echo "🚀 Pushing to GitHub..."
-git push origin main
+git push -u origin main --force
 
-echo "🎉 Done! Render auto deploy triggered."
-read -p "Press Enter to close..."
+echo "🎉 Done — Repo Updated!"
+echo "🎯 Press Enter to close..."
+read
