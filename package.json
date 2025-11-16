@@ -1,0 +1,13 @@
+{
+  "name": "m4a-to-mp3-converter",
+  "version": "1.0.0",
+  "description": "Simple M4A to MP3 Converter",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^2.0.0"
+  }
+}
