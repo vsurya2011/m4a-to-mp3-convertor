@@ -1,47 +1,74 @@
-const express = require("express");
-const multer = require("multer");
-const { exec } = require("child_process");
-const path = require("path");
-const fs = require("fs");
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const dropArea = document.getElementById('drop-area');
 
-const app = express();
-const PORT = process.env.PORT || 10000;
-
-// Serve static files (index.html, style.css, script.js) from the root directory
-app.use(express.static(__dirname)); 
-
-// Configure multer to store files temporarily
-const upload = multer({ dest: path.join(__dirname, 'uploads/') });
-
-app.post("/convert", upload.single("audio"), (req, res) => {
-    // Check if a file was actually uploaded
-    if (!req.file) {
-        return res.status(400).send("No file uploaded.");
+    // --- Drag and Drop Handlers (Optional but good UX) ---
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults (e) {
+        e.preventDefault();
+        e.stopPropagation();
     }
 
-    const inputFile = req.file.path;
-    const outputFile = inputFile + ".mp3";
-    
-    // Command to convert M4A to MP3 using ffmpeg
-    // Note: The conversion process may take some time depending on the file size.
-    exec(`ffmpeg -i ${inputFile} -q:a 0 -map a ${outputFile}`, (err) => {
-        if (err) {
-            console.error("FFmpeg Error:", err);
-            // Clean up the input file if conversion fails
-            if (fs.existsSync(inputFile)) fs.unlinkSync(inputFile);
-            return res.status(500).send("❌ Conversion Failed! Check that the file is a valid M4A.");
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        let dt = e.dataTransfer;
+        let files = dt.files;
+        // Assume the first file is the one to use
+        if (files.length > 0) {
+            fileInput.files = files; 
+            // Optional: trigger conversion right after drop
+            // uploadBtn.click();
+        }
+    }
+
+    // --- Button Click Handler ---
+    uploadBtn.addEventListener('click', async () => {
+        if (!fileInput.files.length) {
+            alert("Please select an M4A file first.");
+            return;
         }
 
-        // Send the converted file back to the client
-        res.download(outputFile, "converted.mp3", (downloadErr) => {
-            // Clean up both input and output files after download completes (or fails)
-            if (fs.existsSync(inputFile)) fs.unlinkSync(inputFile);
-            if (fs.existsSync(outputFile)) fs.unlinkSync(outputFile);
-            if (downloadErr) console.error("Download Error:", downloadErr);
-        });
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('audio', file); // 'audio' must match the multer field name
+
+        uploadBtn.textContent = "Converting... (This may take a moment)";
+        uploadBtn.disabled = true;
+
+        try {
+            const response = await fetch('/convert', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                alert(`Conversion failed: ${errorText}`);
+                console.error("Server Response Error:", errorText);
+            } else {
+                // Trigger file download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'converted.mp3'; // Filename from server
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                alert("✅ Conversion Successful! Download initiated.");
+            }
+        } catch (error) {
+            alert("An unknown error occurred during conversion.");
+            console.error("Fetch Error:", error);
+        } finally {
+            uploadBtn.textContent = "Convert";
+            uploadBtn.disabled = false;
+        }
     });
 });
-
-app.listen(PORT, () =>
-    console.log(`🚀 Server running on port ${PORT}`)
-);
