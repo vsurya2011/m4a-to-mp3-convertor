@@ -1,0 +1,32 @@
+# render.yaml
+
+# Defines the services that Render should deploy
+services:
+  - type: web
+    name: m4a-to-mp3-convertor
+    # Use the Docker runtime to build the environment
+    runtime: docker
+    
+    # Points to the directory containing the Dockerfile, package.json, and server.js
+    # This matches the 'Root Directory: backend' setting we used earlier.
+    rootDir: backend
+    
+    # The minimum instance type required for a web service
+    plan: free
+    
+    # The public port for the web service
+    # Should match the EXPOSE 3000 in your Dockerfile
+    port: 3000
+
+    # Build and Start commands are handled by the Dockerfile, 
+    # but we can explicitly disable Render's default commands if they were present.
+    # Note: For Docker runtime, Render usually ignores these if left empty.
+    # buildCommand: ""
+    # startCommand: ""
+
+    # Environment variables (Optional, but good practice if you had keys)
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # - key: FFPROBE_PATH
+      #   value: /usr/bin/ffprobe  # Optional: fluent-ffmpeg should auto-detect, but this is a fail-safe

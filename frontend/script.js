@@ -1,5 +1,8 @@
 // script.js
 
+// ** CRUCIAL UPDATE: Set this to your live Render backend URL **
+const BACKEND_URL = 'https://m4a-to-mp3-convertor-ra9z.onrender.com'; 
+
 const dropArea = document.getElementById('drop-area');
 const fileInput = document.getElementById('fileInput');
 const selectFileBtn = document.getElementById('selectFileBtn');
@@ -84,7 +87,9 @@ convertBtn.addEventListener('click', async () => {
         });
 
         if (!response.ok) {
-            throw new Error(`Server responded with status: ${response.statusText}`);
+            // Read error response text for better debugging
+            const errorText = await response.text();
+            throw new Error(`Server responded with status ${response.status}: ${errorText}`);
         }
 
         // Get file name from response headers (Content-Disposition)
