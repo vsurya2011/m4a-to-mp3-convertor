@@ -4,21 +4,13 @@
 services:
   # ---------------------------------------------
   # 1. BACKEND API SERVICE (Docker Web Service)
-  #    Handles the M4A to MP3 conversion using FFmpeg
   # ---------------------------------------------
-  - type: web
+  - type: web # Correct type for dynamic server
     name: m4a-api-service
     
-    # Crucial: Use the Docker runtime to build the environment with FFmpeg
     runtime: docker 
-    
-    # Points to the folder containing the Dockerfile, package.json, and server.js
     rootDir: backend
-    
-    # Free plan is sufficient for testing
     plan: free
-    
-    # Port must match the EXPOSE 3000 in your Dockerfile
     port: 3000
 
     envVars:
@@ -27,16 +19,14 @@ services:
 
   # ---------------------------------------------
   # 2. FRONTEND UI SERVICE (Static Site)
-  #    Serves your HTML, CSS, and JavaScript
   # ---------------------------------------------
-  - type: static
+  - type: static_site # <--- CORRECTED: Must be 'static_site'
     name: m4a-ui-static
     
-    # Points to the folder containing index.html, script.js, and style.css
     rootDir: frontend
     
-    # Static sites usually have no build command
+    # We can omit buildCommand and publishPath for simplicity 
+    # as Render often defaults them correctly for static_site
+    # but defining them is safer:
     buildCommand: ""
-    
-    # Path where the final static assets are located (same as rootDir here)
     publishPath: frontend
