@@ -1,11 +1,11 @@
 services:
   - type: web
     name: m4a-to-mp3-converter
-    env: node
-    # IMPORTANT: Installs the system dependency 'ffmpeg' first, then Node dependencies
-    buildCommand: "apt-get update -y && apt-get install -y ffmpeg && npm install"
-    startCommand: "node server.js"
-    plan: starter # Use 'starter' for the free/basic tier
+    # Change env from 'node' to 'docker'
+    dockerfilePath: Dockerfile
+    # Render will automatically run the CMD command from the Dockerfile
+    # Remove buildCommand and startCommand
+    plan: starter 
     envVars:
-      - key: NODE_VERSION
-        value: "20.10.0" # Use a modern, stable Node version
+      - key: NODE_VERSION # This is now just documentation, not required by Dockerfile
+        value: "20"
