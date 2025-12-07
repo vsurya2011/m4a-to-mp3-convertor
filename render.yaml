@@ -1,32 +1,22 @@
 # render.yaml
 
-# Defines the services that Render should deploy
 services:
-  # ---------------------------------------------
   # 1. BACKEND API SERVICE (Docker Web Service)
-  # ---------------------------------------------
-  - type: web # Correct type for dynamic server
+  - type: web
     name: m4a-api-service
-    
     runtime: docker 
     rootDir: backend
     plan: free
     port: 3000
-
     envVars:
       - key: NODE_ENV
         value: production
 
-  # ---------------------------------------------
   # 2. FRONTEND UI SERVICE (Static Site)
-  # ---------------------------------------------
-  - type: static_site # <--- CORRECTED: Must be 'static_site'
+  - type: static_site # <-- This MUST be the correct type
     name: m4a-ui-static
-    
     rootDir: frontend
     
-    # We can omit buildCommand and publishPath for simplicity 
-    # as Render often defaults them correctly for static_site
-    # but defining them is safer:
+    # Must be explicitly defined when using a subdirectory
     buildCommand: ""
     publishPath: frontend
