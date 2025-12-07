@@ -1,11 +1,12 @@
 services:
   - type: web
     name: m4a-to-mp3-converter
-    # Change env from 'node' to 'docker'
-    dockerfilePath: Dockerfile
-    # Render will automatically run the CMD command from the Dockerfile
-    # Remove buildCommand and startCommand
+    # Change runtime to node
+    env: node 
+    # This single line downloads ffmpeg statically and installs node packages
+    buildCommand: "wget -O ffmpeg.tar.xz https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz && tar xvf ffmpeg.tar.xz && mv ffmpeg-git-*-static/ffmpeg ./ffmpeg && npm install"
+    startCommand: "node server.js"
     plan: starter 
     envVars:
-      - key: NODE_VERSION # This is now just documentation, not required by Dockerfile
+      - key: NODE_VERSION
         value: "20"

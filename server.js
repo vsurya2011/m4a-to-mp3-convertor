@@ -7,14 +7,18 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Serve static files (index.html, style.css, script.js) from the root directory
+// Serve static files (index.html, style.css, script.js)
 app.use(express.static(__dirname)); 
 
-// Configure multer to store files temporarily
-const upload = multer({ dest: path.join(__dirname, 'uploads/') });
+// Create 'uploads' directory if it doesn't exist
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR);
+}
+
+const upload = multer({ dest: UPLOADS_DIR });
 
 app.post("/convert", upload.single("audio"), (req, res) => {
-    // Check if a file was actually uploaded
     if (!req.file) {
         return res.status(400).send("No file uploaded.");
     }
@@ -22,21 +26,24 @@ app.post("/convert", upload.single("audio"), (req, res) => {
     const inputFile = req.file.path;
     const outputFile = inputFile + ".mp3";
     
-    // Command to convert M4A to MP3 using ffmpeg
-    // Note: The conversion process may take some time depending on the file size.
-    exec(`ffmpeg -i ${inputFile} -q:a 0 -map a ${outputFile}`, (err) => {
+    // CRITICAL FIX: Reference the local './ffmpeg' binary we downloaded
+    exec(`./ffmpeg -i ${inputFile} -q:a 0 -map a ${outputFile}`, (err) => {
+        
+        // Function to clean up files
+        const cleanup = () => {
+            if (fs.existsSync(inputFile)) fs.unlinkSync(inputFile);
+            if (fs.existsSync(outputFile)) fs.unlinkSync(outputFile);
+        };
+
         if (err) {
             console.error("FFmpeg Error:", err);
-            // Clean up the input file if conversion fails
-            if (fs.existsSync(inputFile)) fs.unlinkSync(inputFile);
+            cleanup();
             return res.status(500).send("❌ Conversion Failed! Check that the file is a valid M4A.");
         }
 
         // Send the converted file back to the client
         res.download(outputFile, "converted.mp3", (downloadErr) => {
-            // Clean up both input and output files after download completes (or fails)
-            if (fs.existsSync(inputFile)) fs.unlinkSync(inputFile);
-            if (fs.existsSync(outputFile)) fs.unlinkSync(outputFile);
+            cleanup(); // Clean up both files after download is complete
             if (downloadErr) console.error("Download Error:", downloadErr);
         });
     });
