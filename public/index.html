@@ -2,16 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>M4A to MP3 Converter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M4A ➜ MP3 Converter</title>
     <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <h1>M4A ➜ MP3 Converter</h1>
-    <div id="drop-area">
-        <p>Drag & Drop M4A file here</p>
-        <input type="file" id="fileInput" accept=".m4a">
+    <div class="container">
+        <h1><i class="fas fa-music"></i> M4A ➜ MP3 Converter</h1>
+        <p class="subtitle">Convert your audio effortlessly in the cloud.</p>
+
+        <div id="drop-area" class="card">
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            <p>Drag & Drop M4A file here</p>
+            <p class="filename-display"></p>
+            <input type="file" id="fileInput" accept=".m4a">
+        </div>
+        
+        <button id="uploadBtn" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Convert</button>
+
+        <div id="status-message" class="status-box hidden"></div>
     </div>
-    <button id="uploadBtn">Convert</button>
+
     <script src="/script.js"></script>
 </body>
 </html>
