@@ -4,12 +4,11 @@ services:
   # ---------------------------------------------
   # 1. BACKEND API SERVICE (Docker Web Service)
   # ---------------------------------------------
-  - type: web 
+  - type: web
     name: m4a-api-service
-    runtime: docker 
+    runtime: docker
     rootDir: backend
-    # Plan is needed only for the Web Service
-    plan: free 
+    plan: free
     port: 3000
     envVars:
       - key: NODE_ENV
@@ -18,15 +17,8 @@ services:
   # ---------------------------------------------
   # 2. FRONTEND UI SERVICE (Static Site)
   # ---------------------------------------------
-  - type: web # Type must be 'web'
+  - type: web
     name: m4a-ui-static
-    
-    # Crucial: The runtime MUST be 'static' for a static site in the Blueprint
     runtime: static
-    
     rootDir: frontend
-    
-    # REMOVED: plan: free (Static sites don't use this field)
-    
-    # This tells Render which directory to publish from
     staticPublishPath: frontend
