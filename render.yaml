@@ -1,8 +1,10 @@
 # render.yaml
 
 services:
+  # ---------------------------------------------
   # 1. BACKEND API SERVICE (Docker Web Service)
-  - type: web
+  # ---------------------------------------------
+  - type: web # Correct type for dynamic server
     name: m4a-api-service
     runtime: docker 
     rootDir: backend
@@ -12,11 +14,18 @@ services:
       - key: NODE_ENV
         value: production
 
+  # ---------------------------------------------
   # 2. FRONTEND UI SERVICE (Static Site)
-  - type: static_site # <-- This MUST be the correct type
+  # ---------------------------------------------
+  - type: web # <--- TYPE IS 'web'
     name: m4a-ui-static
+    
+    # Crucial: The runtime is 'static' for a static site within the Blueprint
+    runtime: static # <--- RUNTIME IS 'static'
+    
     rootDir: frontend
     
-    # Must be explicitly defined when using a subdirectory
+    # These fields specify the static asset paths
+    # Note the change to staticPublishPath as per documentation examples
     buildCommand: ""
-    publishPath: frontend
+    staticPublishPath: frontend # <--- The publishing path name
