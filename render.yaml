@@ -4,11 +4,12 @@ services:
   # ---------------------------------------------
   # 1. BACKEND API SERVICE (Docker Web Service)
   # ---------------------------------------------
-  - type: web # Correct type for dynamic server
+  - type: web 
     name: m4a-api-service
     runtime: docker 
     rootDir: backend
-    plan: free
+    # Plan is needed only for the Web Service
+    plan: free 
     port: 3000
     envVars:
       - key: NODE_ENV
@@ -17,15 +18,15 @@ services:
   # ---------------------------------------------
   # 2. FRONTEND UI SERVICE (Static Site)
   # ---------------------------------------------
-  - type: web # <--- TYPE IS 'web'
+  - type: web # Type must be 'web'
     name: m4a-ui-static
     
-    # Crucial: The runtime is 'static' for a static site within the Blueprint
-    runtime: static # <--- RUNTIME IS 'static'
+    # Crucial: The runtime MUST be 'static' for a static site in the Blueprint
+    runtime: static
     
     rootDir: frontend
     
-    # These fields specify the static asset paths
-    # Note the change to staticPublishPath as per documentation examples
-    buildCommand: ""
-    staticPublishPath: frontend # <--- The publishing path name
+    # REMOVED: plan: free (Static sites don't use this field)
+    
+    # This tells Render which directory to publish from
+    staticPublishPath: frontend
