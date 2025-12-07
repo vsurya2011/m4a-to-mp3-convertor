@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M4A to MP3 Converter</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>🎧 M4A to MP3 Converter</h1>
+        <p>Convert your audio files quickly and easily.</p>
+
+        <div id="drop-area" class="drop-area">
+            <span class="upload-icon">⬆️</span>
+            <p><strong>Drag and drop</strong> your M4A file here, or</p>
+            <input type="file" id="fileInput" accept="audio/mp4" style="display: none;">
+            <button id="selectFileBtn" class="btn-primary">Select File</button>
+            <p id="fileName" class="file-name"></p>
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+        
+        <button id="convertBtn" class="btn-secondary" disabled>Convert to MP3</button>
+    </div>
+
+    <script>
+        // Set this to your Render backend URL (e.g., 'https://your-render-app.onrender.com')
+        const BACKEND_URL = 'http://localhost:3000'; 
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
