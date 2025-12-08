@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>M4A to MP3 Converter</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<div class="toggle" onclick="toggleTheme()">🌙</div>
+
+<div class="card">
+  <h1>M4A → MP3</h1>
+  <p class="subtitle">Fast Secure Audio Converter</p>
+
+  <div id="drop-area">
+    <p>Drag & Drop up to 5 files</p>
+    <input type="file" id="fileInput" multiple>
+    <span>or Click to Select</span>
+  </div>
+
+  <div id="fileList"></div>
+
+  <select id="bitrate">
+    <option value="128">128 kbps</option>
+    <option value="192" selected>192 kbps</option>
+    <option value="320">320 kbps</option>
+  </select>
+
+  <div class="progress">
+    <div id="progressBar"></div>
+  </div>
+
+  <p id="percent"></p>
+
+  <button id="convertBtn">Convert & Download</button>
+  <p id="msg"></p>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
