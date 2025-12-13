@@ -1,25 +1,50 @@
-const input = document.getElementById('fileInput');
-const btn = document.getElementById('convertBtn');
-const msg = document.getElementById('msg');
-const progress = document.getElementById('progressBar');
-const dropArea = document.getElementById('drop-area');
-const fileList = document.getElementById('fileList');
-const bitrate = document.getElementById('bitrate');
-const percent = document.getElementById('percent');
+const input = document.getElementById("fileInput");
+const dropArea = document.getElementById("drop-area");
+const fileList = document.getElementById("fileList");
+const btn = document.getElementById("convertBtn");
+const progress = document.getElementById("progressBar");
+const percent = document.getElementById("percent");
+const msg = document.getElementById("msg");
+const bitrate = document.getElementById("bitrate");
+
+let files = [];
 
 dropArea.onclick = () => input.click();
 
+dropArea.addEventListener("dragover", e => {
+  e.preventDefault();
+  dropArea.classList.add("hover");
+});
+
+dropArea.addEventListener("dragleave", () => {
+  dropArea.classList.remove("hover");
+});
+
+dropArea.addEventListener("drop", e => {
+  e.preventDefault();
+  dropArea.classList.remove("hover");
+  files = [...e.dataTransfer.files];
+  showFiles();
+});
+
 input.onchange = () => {
-  let names = [...input.files].map(f => f.name).join("<br>");
-  fileList.innerHTML = names;
+  files = [...input.files];
+  showFiles();
 };
 
+function showFiles() {
+  fileList.innerHTML = files.map(f => f.name).join("<br>");
+}
+
 btn.onclick = () => {
-  if (!input.files.length) return alert("Select files first");
+  if (!files.length) {
+    alert("Please select files first");
+    return;
+  }
 
   const fd = new FormData();
-  for (let f of input.files) fd.append('files', f);
-  fd.append('bitrate', bitrate.value);
+  files.forEach(f => fd.append("files", f));
+  fd.append("bitrate", bitrate.value);
 
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "/convert");
@@ -34,31 +59,28 @@ btn.onclick = () => {
 
   xhr.onload = () => {
     if (xhr.status === 200) {
-      let disposition = xhr.getResponseHeader("Content-Disposition");
+      const blob = xhr.response;
+      const cd = xhr.getResponseHeader("Content-Disposition");
       let filename = "download.mp3";
 
-      if (disposition && disposition.includes("filename=")) {
-        filename = disposition.split("filename=")[1].replaceAll('"','');
+      if (cd && cd.includes("filename=")) {
+        filename = cd.split("filename=")[1].replace(/"/g, "");
       }
 
-      const blob = xhr.response;
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
+      const a = document.createElement("a");
+      a.href = window.URL.createObjectURL(blob);
       a.download = filename;
       a.click();
 
-      msg.innerText = "Download completed!";
-      progress.style.width = percent.innerText = "0%";
+      msg.innerText = "Conversion Successful!";
     } else {
       msg.innerText = "Conversion Failed!";
     }
+
+    progress.style.width = "0%";
+    percent.innerText = "";
   };
 
   xhr.responseType = "blob";
   xhr.send(fd);
 };
-
-function toggleTheme(){
-  document.body.classList.toggle("light");
-}
