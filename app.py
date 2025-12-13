@@ -24,9 +24,19 @@ def allowed(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTS
 
 def convert_ffmpeg(src, dst, bitrate):
-    cmd = ["ffmpeg", "-y", "-i", src, "-ab", f"{bitrate}k", dst]
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-i", src,
+        "-map_metadata", "-1",      # remove metadata (IMPORTANT)
+        "-vn",
+        "-acodec", "libmp3lame",    # force mp3 codec
+        "-ab", f"{bitrate}k",
+        dst
+    ]
     p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return p.returncode == 0
+
 
 @app.route('/convert', methods=['POST'])
 def convert():
@@ -75,3 +85,4 @@ def convert():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
