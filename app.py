@@ -1,11 +1,8 @@
 from flask import Flask, request, send_file, jsonify
 from werkzeug.utils import secure_filename
-import subprocess, tempfile, os, zipfile, shutil, shutil as sh
+import subprocess, tempfile, os, zipfile, shutil
 
-# 🔥 AUTO-DETECT FFMPEG
-FFMPEG_PATH = sh.which("ffmpeg")
-if not FFMPEG_PATH:
-    raise RuntimeError("FFmpeg not found on system")
+FFMPEG_PATH = "ffmpeg"  # works after apt install
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 
@@ -39,7 +36,7 @@ def convert_ffmpeg(src, dst, bitrate):
         dst
     ]
     p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print(p.stderr.decode())
+    print(p.stderr.decode())  # Render logs
     return p.returncode == 0
 
 @app.route('/convert', methods=['POST'])
@@ -62,8 +59,10 @@ def convert():
             src = os.path.join(temp_dir, filename)
             f.save(src)
 
-            mp3_name = os.path.splitext(filename)[0] + ".mp3"
-            mp3_path = os.path.join(temp_dir, mp3_name)
+            mp3_path = os.path.join(
+                temp_dir,
+                os.path.splitext(filename)[0] + ".mp3"
+            )
 
             if convert_ffmpeg(src, mp3_path, bitrate):
                 output_files.append(mp3_path)
@@ -75,7 +74,7 @@ def convert():
             return send_file(output_files[0], as_attachment=True)
 
         zip_path = os.path.join(temp_dir, "converted_mp3s.zip")
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
             for f in output_files:
                 z.write(f, os.path.basename(f))
 
