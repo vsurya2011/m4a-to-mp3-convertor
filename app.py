@@ -1,8 +1,10 @@
 from flask import Flask, request, send_file, jsonify
 from werkzeug.utils import secure_filename
 import subprocess, tempfile, os, zipfile, shutil
+import imageio_ffmpeg
 
-FFMPEG_PATH = r"C:\Users\SURYA\Downloads\ffmpeg-2025-12-07-git-c4d22f2d2c-full_build\ffmpeg-2025-12-07-git-c4d22f2d2c-full_build\bin\ffmpeg.exe"
+# ✅ FFmpeg that works on Render
+FFMPEG_PATH = imageio_ffmpeg.get_ffmpeg_exe()
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 
@@ -29,15 +31,15 @@ def convert_ffmpeg(src, dst, bitrate):
         FFMPEG_PATH,
         "-y",
         "-i", src,
-        "-map_metadata", "-1",
         "-vn",
+        "-map_metadata", "-1",
         "-acodec", "libmp3lame",
         "-ab", f"{bitrate}k",
         dst
     ]
-    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print(p.stderr.decode())  # Render logs
-    return p.returncode == 0
+    process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print(process.stderr.decode())
+    return process.returncode == 0 and os.path.exists(dst)
 
 @app.route('/convert', methods=['POST'])
 def convert():
@@ -45,38 +47,43 @@ def convert():
     bitrate = request.form.get('bitrate', '192')
 
     if not files or files[0].filename == "":
-        return jsonify({"error": "No files received"}), 400
+        return jsonify({"error": "No files selected"}), 400
+
+    if len(files) > MAX_FILES:
+        return jsonify({"error": "Maximum 5 files allowed"}), 400
 
     temp_dir = tempfile.mkdtemp()
     output_files = []
 
     try:
-        for f in files:
-            filename = secure_filename(f.filename.replace(",", "_"))
+        for file in files:
+            filename = secure_filename(file.filename)
             if not allowed(filename):
                 continue
 
-            src = os.path.join(temp_dir, filename)
-            f.save(src)
+            src_path = os.path.join(temp_dir, filename)
+            file.save(src_path)
 
             mp3_path = os.path.join(
                 temp_dir,
                 os.path.splitext(filename)[0] + ".mp3"
             )
 
-            if convert_ffmpeg(src, mp3_path, bitrate):
+            if convert_ffmpeg(src_path, mp3_path, bitrate):
                 output_files.append(mp3_path)
 
         if not output_files:
-            return jsonify({"error": "FFmpeg conversion failed"}), 500
+            return jsonify({"error": "Conversion failed"}), 500
 
+        # 🔥 One file → direct download
         if len(output_files) == 1:
             return send_file(output_files[0], as_attachment=True)
 
+        # 🔥 Multiple files → ZIP
         zip_path = os.path.join(temp_dir, "converted_mp3s.zip")
-        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
             for f in output_files:
-                z.write(f, os.path.basename(f))
+                zipf.write(f, os.path.basename(f))
 
         return send_file(zip_path, as_attachment=True)
 
@@ -85,4 +92,3 @@ def convert():
 
 if __name__ == "__main__":
     app.run()
-
