@@ -11,23 +11,29 @@
 <div class="container">
   <h1>M4A to MP3 Converter</h1>
 
-  <form id="upload-form">
-    <div id="drop-area">
-      <p>Drag & Drop files here</p>
-      <span>or click to select (max 5 files)</span>
-      <input type="file" id="fileInput" name="files" accept=".m4a,.mp4,.aac" multiple hidden>
-    </div>
+  <div id="drop-area">
+    <p>Drag & Drop files here</p>
+    <span>or click to select (max 5 files)</span>
+    <input type="file" id="fileInput" accept=".m4a,.mp4,.aac" multiple hidden>
+  </div>
 
-    <ul id="file-list"></ul>
+  <div id="fileList"></div>
 
-    <select name="bitrate">
-      <option value="128">128 kbps</option>
-      <option value="192" selected>192 kbps</option>
-      <option value="320">320 kbps</option>
-    </select>
+  <label for="bitrate">Select Bitrate:</label>
+  <select id="bitrate">
+    <option value="128">128 kbps</option>
+    <option value="192" selected>192 kbps</option>
+    <option value="320">320 kbps</option>
+  </select>
 
-    <button type="submit">Convert</button>
-  </form>
+  <button id="convertBtn">Convert & Download</button>
+
+  <div id="progress" class="progress-container">
+    <div id="progressBar" class="progress-bar"></div>
+  </div>
+
+  <div id="percent"></div>
+  <div id="msg"></div>
 </div>
 
 <script src="script.js"></script>
