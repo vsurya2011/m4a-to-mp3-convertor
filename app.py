@@ -2,7 +2,7 @@ from flask import Flask, request, send_file, jsonify
 from werkzeug.utils import secure_filename
 import subprocess, tempfile, os, zipfile, shutil
 
-FFMPEG_PATH = "ffmpeg"  # works after apt install
+FFMPEG_PATH = r"C:\Users\SURYA\Downloads\ffmpeg-2025-12-07-git-c4d22f2d2c-full_build\ffmpeg-2025-12-07-git-c4d22f2d2c-full_build\bin\ffmpeg.exe"
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 
@@ -85,3 +85,4 @@ def convert():
 
 if __name__ == "__main__":
     app.run()
+
