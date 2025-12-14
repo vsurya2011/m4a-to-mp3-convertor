@@ -1,8 +1,12 @@
 from flask import Flask, request, send_file, jsonify
 from werkzeug.utils import secure_filename
-import subprocess, tempfile, os, zipfile, shutil
+import subprocess, tempfile, os, zipfile, shutil, shutil as sh
 
-FFMPEG_PATH = "ffmpeg"   # ffmpeg must be in PATH
+# 🔥 AUTO-DETECT FFMPEG
+FFMPEG_PATH = sh.which("ffmpeg")
+if not FFMPEG_PATH:
+    raise RuntimeError("FFmpeg not found on system")
+
 app = Flask(__name__, static_url_path='', static_folder='.')
 
 ALLOWED_EXTS = {'m4a', 'mp4', 'aac'}
@@ -25,18 +29,18 @@ def allowed(filename):
 
 def convert_ffmpeg(src, dst, bitrate):
     cmd = [
-        "ffmpeg",
+        FFMPEG_PATH,
         "-y",
         "-i", src,
-        "-map_metadata", "-1",      # remove metadata (IMPORTANT)
+        "-map_metadata", "-1",
         "-vn",
-        "-acodec", "libmp3lame",    # force mp3 codec
+        "-acodec", "libmp3lame",
         "-ab", f"{bitrate}k",
         dst
     ]
     p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print(p.stderr.decode())
     return p.returncode == 0
-
 
 @app.route('/convert', methods=['POST'])
 def convert():
@@ -46,15 +50,12 @@ def convert():
     if not files or files[0].filename == "":
         return jsonify({"error": "No files received"}), 400
 
-    if len(files) > MAX_FILES:
-        return jsonify({"error": "Maximum 5 files allowed"}), 400
-
     temp_dir = tempfile.mkdtemp()
     output_files = []
 
     try:
         for f in files:
-            filename = secure_filename(f.filename)
+            filename = secure_filename(f.filename.replace(",", "_"))
             if not allowed(filename):
                 continue
 
@@ -84,5 +85,4 @@ def convert():
         shutil.rmtree(temp_dir, ignore_errors=True)
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
+    app.run()
