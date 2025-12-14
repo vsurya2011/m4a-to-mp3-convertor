@@ -1,37 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>M4A to MP3 Converter</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="card">
-  <h1>M4A → MP3</h1>
-  <p class="subtitle">Fast Secure Audio Converter</p>
+<div class="container">
+  <h1>M4A to MP3 Converter</h1>
 
-  <div id="drop-area">
-    <p>Drag & Drop up to 5 files</p>
-    <span>or Click to Select</span>
-    <input type="file" id="fileInput" multiple>
-  </div>
+  <form id="upload-form">
+    <div id="drop-area">
+      <p>Drag & Drop files here</p>
+      <span>or click to select (max 5 files)</span>
+      <input type="file" id="fileInput" name="files" accept=".m4a,.mp4,.aac" multiple hidden>
+    </div>
 
-  <div id="fileList"></div>
+    <ul id="file-list"></ul>
 
-  <select id="bitrate">
-    <option value="128">128 kbps</option>
-    <option value="192" selected>192 kbps</option>
-    <option value="320">320 kbps</option>
-  </select>
+    <select name="bitrate">
+      <option value="128">128 kbps</option>
+      <option value="192" selected>192 kbps</option>
+      <option value="320">320 kbps</option>
+    </select>
 
-  <div class="progress">
-    <div id="progressBar"></div>
-  </div>
-  <p id="percent"></p>
-
-  <button id="convertBtn">Convert & Download</button>
-  <p id="msg"></p>
+    <button type="submit">Convert</button>
+  </form>
 </div>
 
 <script src="script.js"></script>
